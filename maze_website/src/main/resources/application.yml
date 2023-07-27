@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/MazeDB?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&serverTimezone=EST
+    username: postgresSubUser
+    password: _3hJu#^TH@mW:HJY
+    hikari:
+      idleTimeout: 500
+      connectionTimeout: 15000 
+  jpa:
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+server:
+  port: 8080
+  address: 192.168.86.175
+ 
