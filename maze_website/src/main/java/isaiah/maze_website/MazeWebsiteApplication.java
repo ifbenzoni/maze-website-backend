@@ -12,6 +12,7 @@ import org.springframework.web.cors.CorsConfiguration;
 @SpringBootApplication
 public class MazeWebsiteApplication {
 
+	//TODO: test gitignore
 	public static void main(String[] args) {
 		SpringApplication.run(MazeWebsiteApplication.class, args);
 	}
