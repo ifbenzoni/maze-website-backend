@@ -1,4 +1,4 @@
-./src/main/resources/application.yml
+application.yml
 
 # Created by https://www.toptal.com/developers/gitignore/api/eclipse
 # Edit at https://www.toptal.com/developers/gitignore?templates=eclipse
