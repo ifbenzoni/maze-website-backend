@@ -1,5 +1,7 @@
 package isaiah.maze_website.security;
 
+import java.util.Arrays;
+
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,27 +15,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
-	
-	@Bean
-	public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails guest = User.withUsername("guest")
-            .password(passwordEncoder().encode("guestPass"))
-            .roles("USER")
-            .build();
-        UserDetails testUser = User.withUsername("testUser")
-            .password(passwordEncoder().encode("testUserPass"))
-            .roles("USER")
-            .build();
-        UserDetails admin = User.withUsername("admin")
-            .password(passwordEncoder().encode("adminPass"))
-            .roles("ADMIN")
-            .build();
-        return new InMemoryUserDetailsManager(guest, testUser, admin);
-	}
 	
 	@Bean 
 	public PasswordEncoder passwordEncoder() { 
@@ -45,21 +33,23 @@ public class WebSecurityConfig {
 		//TODO: remove any info about local ip address from test hosting locally(in at least two files on front and backend)
 		//TODO: learn about and re-enable csrf if important
 		http.cors().and().csrf().disable();
-		//TODO: remove below if unnecessary
-		//TODO: remove in memory user details above
-		/*
-		.and()
-		.authorizeHttpRequests((requests) -> requests
-			.requestMatchers("/", "/home").permitAll()
-			.anyRequest().authenticated()
-		)
-		.formLogin((form) -> form
-			.loginPage("/login")
-			.permitAll()
-		)
-		.logout((logout) -> logout.permitAll());
-		 */
 		return http.build();
 	}
+
+    @Bean
+        CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+		corsConfiguration.setAllowCredentials(true);
+		corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "https://maze-website-frontend.web.app"));
+		corsConfiguration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type",
+            "Access-Control-Allow-Origin", "X-Requested-With"));
+		corsConfiguration.setExposedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type",
+            "Access-Control-Allow-Origin", "X-Requested-With"));
+		corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		corsConfiguration.setMaxAge(3600L);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfiguration);
+        return source;
+    }
 	
 }

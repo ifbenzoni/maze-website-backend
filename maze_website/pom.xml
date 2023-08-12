@@ -17,6 +17,20 @@
 	<properties>
 		<java.version>17</java.version>
 	</properties>
+
+    <!-- for gcp -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>spring-cloud-gcp-dependencies</artifactId>
+                <version>4.7.1</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -101,15 +115,7 @@
 		<!-- for gcp -->
 		<dependency>
 			<groupId>com.google.cloud</groupId>
-			<artifactId>spring-cloud-gcp-dependencies</artifactId>
-			<version>4.7.0</version>
-			<type>pom</type>
-		</dependency>
-
-		<dependency>
-			<groupId>com.google.cloud</groupId>
 			<artifactId>spring-cloud-gcp-starter-sql-postgresql</artifactId>
-			<version>4.7.0</version>
 		</dependency>
 	</dependencies>
 
