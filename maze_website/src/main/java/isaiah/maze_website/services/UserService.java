@@ -20,7 +20,7 @@ public class UserService {
 	}
 	
 	public User getUser(User user) {
-		return userRepository.findByUsernameAndPassword(user.getUsername(), user.getPassword());
+		return userRepository.findByUsername(user.getUsername());
 	}
 
 	public List<User> getAllUsers() {

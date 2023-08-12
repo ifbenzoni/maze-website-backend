@@ -33,7 +33,6 @@ public class User {
 	@Enumerated(EnumType.STRING)
 	private Role role;
 	
-	//TODO: add role field with enum
 	@Convert(converter = ConverterListIntArr2D.class)
 	private List<int[][]> savedMazes;
 	

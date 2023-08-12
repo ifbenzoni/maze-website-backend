@@ -112,7 +112,7 @@
 			<version>0.11.5</version>
 		</dependency>
 
-		<!-- for gcp -->
+		<!-- for gcp, comment out for local testing -->
 		<dependency>
 			<groupId>com.google.cloud</groupId>
 			<artifactId>spring-cloud-gcp-starter-sql-postgresql</artifactId>

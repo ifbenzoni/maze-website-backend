@@ -32,9 +32,6 @@ import isaiah.maze_website.services.UserService;
 public class AccountController {
 	
 	@Autowired
-	InMemoryUserDetailsManager userDetailsService;
-	
-	@Autowired
 	PasswordEncoder passwordEncoder;
 	
 	@Autowired
@@ -60,7 +57,7 @@ public class AccountController {
 		*/
 		//TODO: can clean usb after set up github
 		User retrievedUser = (userService.getUser(user));
-		if (retrievedUser == null) {
+		if (retrievedUser == null || !passwordEncoder.matches(user.getPassword(), retrievedUser.getPassword())) {
 			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 		} else {
 			String jwt = jwtUtils.generateJwt(retrievedUser);
@@ -89,8 +86,10 @@ public class AccountController {
 	 */
 	@PostMapping("/create")
 	public void createAccount(String token, User user) {
+		//TODO: require unique username
 		Claims claims = jwtUtils.getClaims(token);
 		if (claims.get("role", String.class) == Role.ADMIN.toString()) {
+			user.setPassword(passwordEncoder.encode(user.getPassword()));
 			userService.addUser(user);
 		}
 	}
