@@ -6,14 +6,7 @@ import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,44 +20,62 @@ import isaiah.maze_website.models.User;
 import isaiah.maze_website.security.jwt.JwtUtils;
 import isaiah.maze_website.services.UserService;
 
+/**
+ * REST controller for account information.
+ * 
+ * @author Isaiah
+ *
+ */
 @RestController
 @RequestMapping("/accounts")
 public class AccountController {
 	
-	@Autowired
-	PasswordEncoder passwordEncoder;
-	
-	@Autowired
-	UserService userService;
-	
-	@Autowired
-	JwtUtils jwtUtils;
+	/**
+	 * Max number of saved mazes.
+	 */
+	private static final int MAX_SAVED_MAZES = 10;
 
+	/**
+	 * Dependency injection for password encoder.
+	 */
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+	/**
+	 * Dependency injection for user service.
+	 */
+	@Autowired
+	private UserService userService;
+
+	/**
+	 * Dependency injection for jwtUtils.
+	 */
+	@Autowired
+	private JwtUtils jwtUtils;
+
+	/**
+	 * Checks received user for valid login info.
+	 * 
+	 * @param user user info for login
+	 * @return jwt for user and http status
+	 */
 	@PostMapping("/login")
 	public ResponseEntity<String> login(@RequestBody User user) {
-		/*
-		System.out.println(user.getUsername());
-		System.out.println(user.getPassword());
-		System.out.println(user.getSavedMazes());
-		//TODO: add stuff to make look like when using database (use database)
-		//TODO: remove in memory & add security
-		if (!userDetailsService.userExists(user.getUsername())){
-			return new ResponseEntity<>(false, HttpStatus.OK);
-		}
-		UserDetails dbUserInfo = userDetailsService.loadUserByUsername(user.getUsername());
-		return new ResponseEntity<>(dbUserInfo.getUsername().equals(user.getUsername())
-				&& passwordEncoder.matches(user.getPassword(), dbUserInfo.getPassword()), HttpStatus.OK);
-		*/
-		//TODO: can clean usb after set up github
 		User retrievedUser = (userService.getUser(user));
 		if (retrievedUser == null || !passwordEncoder.matches(user.getPassword(), retrievedUser.getPassword())) {
 			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 		} else {
 			String jwt = jwtUtils.generateJwt(retrievedUser);
-			return new ResponseEntity<>(new Gson().toJson(jwt), HttpStatus.OK);//TODO: compare using password encoder
+			return new ResponseEntity<>(new Gson().toJson(jwt), HttpStatus.OK);
 		}
 	}
-	
+
+	/**
+	 * Checks recieved jwt and sends details if valid.
+	 * 
+	 * @param token jwt stored on frontend
+	 * @return user details and http status
+	 */
 	@PostMapping("/jwtUserDetails")
 	public ResponseEntity<List<String>> detailsFromJwt(@RequestBody String token) {
 		try {
@@ -78,34 +89,87 @@ public class AccountController {
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 	}
-	
+
 	/**
-	 * creates account and uses provided jwt to authenticate
+	 * Creates account and uses provided jwt to authenticate and authorize.
+	 * 
 	 * @param token jwt
-	 * @param user user
+	 * @param user  user
+	 * @return success of adding user and http status
 	 */
 	@PostMapping("/create")
-	public void createAccount(String token, User user) {
-		//TODO: require unique username
+	public ResponseEntity<Boolean> createAccount(String token, User user) {
+		// conflict check
+		List<User> allUsers = userService.getAllUsers();
+		for (User u : allUsers) {
+			if (u.getUsername().equals(user.getUsername())) {
+				return new ResponseEntity<>(false, HttpStatus.CONFLICT);
+			}
+		}
+		// authorization check
 		Claims claims = jwtUtils.getClaims(token);
 		if (claims.get("role", String.class) == Role.ADMIN.toString()) {
+			// TODO: check database to make sure pw is encoded
 			user.setPassword(passwordEncoder.encode(user.getPassword()));
 			userService.addUser(user);
+			return new ResponseEntity<>(true, HttpStatus.OK);
 		}
+		return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
 	}
-	
+
+	/**
+	 * Uses jwt to ensure user has the admin role then sends user info to frontend.
+	 * 
+	 * @param token jwt
+	 * @return list of all users and http status
+	 */
 	@PostMapping("/getAll")
-	public ResponseEntity<List<User>> getUsers(String token, User user) {
+	public ResponseEntity<List<User>> getUsers(String token) {
 		Claims claims = jwtUtils.getClaims(token);
 		if (claims.get("role", String.class) == Role.ADMIN.toString()) {
 			return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
 		}
 		return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 	}
-	
+
+	/**
+	 * Uses jwt to check username and role. If less than 10 mazes for user, add maze to db.
+	 * 
+	 * @param token jwt
+	 * @param maze maze to save
+	 * @return success of saving maze and http status
+	 */
 	@PostMapping("/saveMaze")
-	public void SaveMazeInfo(User user) {
-		//TODO: set up here & on angular, will need get method(s)
+	public ResponseEntity<Boolean> saveMazeInfo(String token, int[][] maze) {
+		Claims claims = jwtUtils.getClaims(token);
+		if (claims.get("role", String.class) == Role.ADMIN.toString()
+				|| claims.get("role", String.class) == Role.GUEST.toString()) {
+			User dbUser = userService.getUser(new User(null, claims.get("username", String.class), null, null, null));
+			if (dbUser.getSavedMazes().size() < MAX_SAVED_MAZES) {
+				dbUser.getSavedMazes().add(maze);
+				dbUser.setSavedMazes(dbUser.getSavedMazes());
+				return new ResponseEntity<>(true, HttpStatus.OK);
+			}
+			return new ResponseEntity<>(false, HttpStatus.CONFLICT);
+		}
+		return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
+	}
+
+	/**
+	 * Uses jwt to check username and role. Gets mazes for user.
+	 * 
+	 * @param token jwt
+	 * @return list of saved mazes and http status
+	 */
+	@PostMapping("/getMazes")
+	public ResponseEntity<List<int[][]>> getMazeInfo(String token) {
+		Claims claims = jwtUtils.getClaims(token);
+		if (claims.get("role", String.class) == Role.ADMIN.toString()
+				|| claims.get("role", String.class) == Role.GUEST.toString()) {
+			User dbUser = userService.getUser(new User(null, claims.get("username", String.class), null, null, null));
+			return new ResponseEntity<>(dbUser.getSavedMazes(), HttpStatus.CONFLICT);
+		}
+		return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 	}
 
 }

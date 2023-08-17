@@ -1,31 +1,38 @@
 package isaiah.maze_website.converters;
 
-import java.sql.Array;
-import java.util.Arrays;
 import java.util.List;
-import java.lang.reflect.Type;
 
 import jakarta.persistence.AttributeConverter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 
+/**
+ * Used to convert users' saved mazes to format easier to store.
+ * 
+ * @author Isaiah
+ *
+ */
 public class ConverterListIntArr2D implements AttributeConverter<List<int[][]>, String> {
 
+	/**
+	 * Converts list of mazes to string in JSON format.
+	 */
 	@Override
 	public String convertToDatabaseColumn(List<int[][]> attribute) {
 		if (attribute == null) {
 			return null;
 		}
-		
+
 		return new Gson().toJson(attribute);
 	}
 
+	// TODO: test this
+	/**
+	 * Converts JSON of saved mazes back to list. Uses type cast for simplicity
+	 * although not sure this is acceptable for type safety.
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<int[][]> convertToEntityAttribute(String dbData) {
@@ -33,9 +40,7 @@ public class ConverterListIntArr2D implements AttributeConverter<List<int[][]>, 
 			return null;
 		} else {
 			JSONArray ja = new JSONArray(dbData);
-			//TODO: (not sure how to enforce typesafety) should be typesafe because converts from JSON made from List<int[][]>, note in javadoc if true
-			//TODO rename class to maze steps converter for clarity
-			return (List<int[][]>)(Object)ja.toList();
+			return (List<int[][]>) (Object) ja.toList();
 		}
 	}
 
