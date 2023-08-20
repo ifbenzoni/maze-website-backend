@@ -6,86 +6,69 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Stack;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 /**
- * Maze model. Contains maze generation methods, maze information, and solution checker.
+ * Maze model. Contains maze generation methods, maze information, and solution
+ * checker.
  * 
  * @author Isaiah
  *
  */
 public class Maze {
 
-	/**
-	 * Default dimensions for square maze.
-	 */
 	private static final int DEFAULT_DIMENSIONS = 9;
+	private static final int MIN_DIMENSIONS = 5;
+	private static final int MAX_DIMENSIONS = 20;
 
 	/**
-	 * Max random value used in maze generation.
+	 * Max random value used in maze generation. (4 directions)
 	 */
 	private static final int MAX_RAND = 4;
 
 	/**
-	 * Value for west wall section.
+	 * Value for west wall section. Can vary based on how displayed.
 	 */
 	private static final int WEST_WALL_SECTION = 1;
 
 	/**
-	 * Value for east wall section.
+	 * Value for east wall section. Can vary based on how displayed.
 	 */
 	private static final int EAST_WALL_SECTION = 2;
 
 	/**
-	 * Value for north wall section.
+	 * Value for north wall section. Can vary based on how displayed.
 	 */
 	private static final int NORTH_WALL_SECTION = 3;
 
 	/**
-	 * Value for south wall section.
+	 * Value for south wall section. Can vary based on how displayed.
 	 */
 	private static final int SOUTH_WALL_SECTION = 4;
 
-	/**
-	 * Value for direction 1.
-	 */
 	private static final int DIR1 = 1;
-
-	/**
-	 * Value for direction 2.
-	 */
 	private static final int DIR2 = 2;
-
-	/**
-	 * Value for direction 3.
-	 */
 	private static final int DIR3 = 3;
-
-	/**
-	 * Value for direction 4.
-	 */
 	private static final int DIR4 = 4;
-	
+
 	/**
 	 * Value representing a target position in maze.
 	 */
 	private static final int TARGET_POSITION = 4;
-	
+
 	/**
 	 * Value representing a selected position in maze.
 	 */
 	private static final int SELECTED_POSITION = 3;
-	
+
 	/**
 	 * Value representing an unvisited position in maze.
 	 */
 	private static final int UNVISITED_POSITION = 2;
-	
+
 	/**
 	 * Value representing a wall in maze.
 	 */
 	private static final int WALL = 1;
-	
+
 	/**
 	 * Value representing an empty position in maze.
 	 */
@@ -106,11 +89,7 @@ public class Maze {
 	 */
 	private List<int[][]> steps;
 
-	/**
-	 * Dependency injection for Random instance.
-	 */
-	@Autowired
-	private Random r;
+	private Random r = new Random();
 
 	public Maze() {
 		dimensions = DEFAULT_DIMENSIONS;
@@ -118,38 +97,37 @@ public class Maze {
 		steps = new ArrayList<int[][]>();
 	}
 
+	/**
+	 * Maze constructor, which allows specified dimensions. Dimensions limited to
+	 * between 5 and 20.
+	 * 
+	 * @param dimensions
+	 */
 	public Maze(int dimensions) {
+		// validate input dimensions
+		if (dimensions < MIN_DIMENSIONS || dimensions > MAX_DIMENSIONS) {
+			throw new IllegalArgumentException("Dimensions must be between 5 and 20.");
+		}
 		this.dimensions = dimensions;
 		setValues(new int[dimensions][dimensions]);
 		steps = new ArrayList<int[][]>();
 	}
 
-	/**
-	 * Gets values.
-	 * @return values
-	 */
 	public int[][] getValues() {
 		return values;
 	}
 
-	/**
-	 * Sets values.
-	 * @param values input
-	 */
 	public void setValues(int[][] values) {
 		this.values = values;
 	}
 
-	/**
-	 * Gets steps.
-	 * @return steps
-	 */
 	public List<int[][]> getSteps() {
 		return steps;
 	}
 
 	/**
-	 * Sets up first step, parameters, and target positions for recursive division generation.
+	 * Sets up first step, parameters, and target positions for recursive division
+	 * generation.
 	 */
 	public void recursiveDivisionGenerationStart() {
 		// add initial values to steps array
@@ -188,19 +166,19 @@ public class Maze {
 		int exclude = r.nextInt(MAX_RAND) + 1;
 
 		if (exclude != WEST_WALL_SECTION) {
-			int[] opening1 = {x, r.nextInt(y - yStart) + yStart};
+			int[] opening1 = { x, r.nextInt(y - yStart) + yStart };
 			values[opening1[0]][opening1[1]] = EMPTY;
 		}
 		if (exclude != EAST_WALL_SECTION) {
-			int[] opening2 = {x, r.nextInt((yEnd + 1) - (y + 1)) + (y + 1)};
+			int[] opening2 = { x, r.nextInt((yEnd + 1) - (y + 1)) + (y + 1) };
 			values[opening2[0]][opening2[1]] = EMPTY;
 		}
 		if (exclude != NORTH_WALL_SECTION) {
-			int[] opening3 = {r.nextInt(x - xStart) + xStart, y};
+			int[] opening3 = { r.nextInt(x - xStart) + xStart, y };
 			values[opening3[0]][opening3[1]] = EMPTY;
 		}
 		if (exclude != SOUTH_WALL_SECTION) {
-			int[] opening4 = {r.nextInt((xEnd + 1) - (x + 1)) + (x + 1), y};
+			int[] opening4 = { r.nextInt((xEnd + 1) - (x + 1)) + (x + 1), y };
 			values[opening4[0]][opening4[1]] = EMPTY;
 		}
 
@@ -239,7 +217,8 @@ public class Maze {
 	}
 
 	/**
-	 * Sets up initial values, first step, starting position, and target positions for DFS generation.
+	 * Sets up initial values, first step, starting position, and target positions
+	 * for DFS generation.
 	 */
 	public void dfsGenerationStart() {
 
@@ -280,7 +259,7 @@ public class Maze {
 		copyValues(valuesCurrent);
 		steps.add(valuesCurrent);
 
-		int[] startingPosition = {r.nextInt((dimensions + 1) / 2) * 2, r.nextInt((dimensions + 1) / 2) * 2};
+		int[] startingPosition = { r.nextInt((dimensions + 1) / 2) * 2, r.nextInt((dimensions + 1) / 2) * 2 };
 		dfsGeneration(startingPosition);
 
 		values[0][0] = TARGET_POSITION;
@@ -288,8 +267,9 @@ public class Maze {
 	}
 
 	/**
-	 * Generates maze using DFS by clearing walls between visited positions.
-	 * Uses DFS + recursion.
+	 * Generates maze using DFS by clearing walls between visited positions. Uses
+	 * DFS + recursion.
+	 * 
 	 * @param startPos position on maze to start at
 	 */
 	public void dfsGeneration(int[] startPos) {
@@ -423,14 +403,14 @@ public class Maze {
 	}
 
 	/**
-	 * Checks whether inputed attempt is correct or not. Uses DFS + Stack.
+	 * Checks whether attempt is correct or not. Uses DFS + Stack.
 	 *
 	 * @param attempt Int array with information about solution.
 	 * @return returns true if correct
 	 */
 	public boolean checkSolution(int[][] attempt) {
 		Stack<int[]> dfsStack = new Stack<int[]>();
-		int[] start = {0, 0};
+		int[] start = { 0, 0 };
 		dfsStack.push(start);
 
 		while (!dfsStack.isEmpty()) {
@@ -439,30 +419,30 @@ public class Maze {
 					&& (currentPos[0] != start[0] || currentPos[1] != start[1])) {
 				return true;
 			}
-			//mark position as visited
+			// mark position as visited
 			attempt[currentPos[0]][currentPos[1]] = -1;
 
 			if (currentPos[0] - 1 >= 0 && (attempt[currentPos[0] - 1][currentPos[1]] == SELECTED_POSITION
 					|| attempt[currentPos[0] - 1][currentPos[1]] == TARGET_POSITION)) {
-				int[] newPos = {currentPos[0] - 1, currentPos[1]};
+				int[] newPos = { currentPos[0] - 1, currentPos[1] };
 				dfsStack.push(newPos);
 			}
 
 			if (currentPos[1] - 1 >= 0 && (attempt[currentPos[0]][currentPos[1] - 1] == SELECTED_POSITION
 					|| attempt[currentPos[0]][currentPos[1] - 1] == TARGET_POSITION)) {
-				int[] newPos = {currentPos[0], currentPos[1] - 1};
+				int[] newPos = { currentPos[0], currentPos[1] - 1 };
 				dfsStack.push(newPos);
 			}
 
 			if (currentPos[0] + 1 < dimensions && (attempt[currentPos[0] + 1][currentPos[1]] == SELECTED_POSITION
 					|| attempt[currentPos[0] + 1][currentPos[1]] == TARGET_POSITION)) {
-				int[] newPos = {currentPos[0] + 1, currentPos[1]};
+				int[] newPos = { currentPos[0] + 1, currentPos[1] };
 				dfsStack.push(newPos);
 			}
 
 			if (currentPos[1] + 1 < dimensions && (attempt[currentPos[0]][currentPos[1] + 1] == SELECTED_POSITION
 					|| attempt[currentPos[0]][currentPos[1] + 1] == TARGET_POSITION)) {
-				int[] newPos = {currentPos[0], currentPos[1] + 1};
+				int[] newPos = { currentPos[0], currentPos[1] + 1 };
 				dfsStack.push(newPos);
 			}
 		}
@@ -477,7 +457,8 @@ public class Maze {
 	}
 
 	/**
-	 * Helper function used when adding maze steps. Copies maze values to dest array.
+	 * Helper function used when adding maze steps. Copies maze values to dest
+	 * array.
 	 * 
 	 * @param dest destination array
 	 */

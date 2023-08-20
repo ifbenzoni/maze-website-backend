@@ -17,7 +17,7 @@ import io.jsonwebtoken.security.Keys;
 import isaiah.maze_website.models.User;
 
 /**
- * Used for generating and getting claims from JWT.
+ * Used for generating JWTs, getting claims, and getting expiration time.
  * 
  * @author Isaiah
  *
@@ -37,7 +37,12 @@ public class JwtUtils {
 	private static final Long JWT_EXPIRATION = 60L;
 
 	/**
-	 * Generates JWT based on provided user.
+	 * Milliseconds in a minute.
+	 */
+	private static final int MS_IN_MIN = 60000;
+
+	/**
+	 * Generates JWT based on provided user. Stores username and role.
 	 * 
 	 * @param user input user
 	 * @return JWT
@@ -46,20 +51,19 @@ public class JwtUtils {
 		return Jwts.builder().claim("username", user.getUsername()).claim("role", user.getRole())
 				.setSubject(user.getUsername()).setId(UUID.randomUUID().toString())
 				.setIssuedAt(Date.from(Instant.now()))
-				// TODO: reasonable reset value and refresh
 				.setExpiration(Date.from(Instant.now().plus(JWT_EXPIRATION, ChronoUnit.MINUTES)))
 				.signWith(key, SignatureAlgorithm.HS512).compact();
 	}
 
-	/**
-	 * Gets claims from JWT.
-	 * 
-	 * @param token JWT
-	 * @return claims
-	 */
 	public Claims getClaims(String token) {
 		Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
 		return claims;
+	}
+
+	public int getExpiration(String token) {
+		int remainingTime = (int) (Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody()
+				.getExpiration().getTime() - System.currentTimeMillis()) / MS_IN_MIN;
+		return remainingTime;
 	}
 
 }

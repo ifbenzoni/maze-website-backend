@@ -7,44 +7,33 @@ import org.springframework.stereotype.Service;
 
 import isaiah.maze_website.models.User;
 import isaiah.maze_website.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 
-/**
- * Uses user repository to modify user information in database.
- * 
- * @author Isaiah
- *
- */
 @Service
+@Transactional
 public class UserService {
-	
-	/**
-	 * Dependency injection for user repo.
-	 */
+
 	@Autowired
 	private UserRepository userRepository;
-	
-	/**
-	 * Adds user to db using user repository class.
-	 * @param user input
-	 * @return added user
-	 */
+
 	public User addUser(User user) {
-		return userRepository.save(user);
+		return userRepository.saveAndFlush(user);
 	}
-	
+
+	public void removeUser(User user) {
+		userRepository.delete(user);
+	}
+
 	/**
-	 * Gets user from db using user repository class.
-	 * @param user input
+	 * Gets user from db using user repository class and username.
+	 * 
+	 * @param user full user object input
 	 * @return retrieved user
 	 */
 	public User getUser(User user) {
 		return userRepository.findByUsername(user.getUsername());
 	}
 
-	/**
-	 * Gets all users in db using user repository class.
-	 * @return retrieved users
-	 */
 	public List<User> getAllUsers() {
 		return userRepository.findAll();
 	}

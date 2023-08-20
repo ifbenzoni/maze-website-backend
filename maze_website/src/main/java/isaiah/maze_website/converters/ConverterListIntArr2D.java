@@ -1,5 +1,6 @@
 package isaiah.maze_website.converters;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.AttributeConverter;
@@ -24,11 +25,9 @@ public class ConverterListIntArr2D implements AttributeConverter<List<int[][]>, 
 		if (attribute == null) {
 			return null;
 		}
-
 		return new Gson().toJson(attribute);
 	}
 
-	// TODO: test this
 	/**
 	 * Converts JSON of saved mazes back to list. Uses type cast for simplicity
 	 * although not sure this is acceptable for type safety.
@@ -37,7 +36,7 @@ public class ConverterListIntArr2D implements AttributeConverter<List<int[][]>, 
 	@Override
 	public List<int[][]> convertToEntityAttribute(String dbData) {
 		if (dbData == null) {
-			return null;
+			return new ArrayList<int[][]>();
 		} else {
 			JSONArray ja = new JSONArray(dbData);
 			return (List<int[][]>) (Object) ja.toList();

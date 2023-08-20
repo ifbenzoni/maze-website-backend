@@ -28,37 +28,24 @@ public class WebSecurityConfig {
 	 */
 	private static final long MAX_AGE_CORS = 3600L;
 
-	/**
-	 * Bean set up for password encoder to use BCryptPasswordEncoder.
-	 * @return password encoder bean
-	 */
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 
-	/**
-	 * Bean for spring security filter chain. 
-	 * @param http HttpSecurity input
-	 * @return DefaultSecurityFilterChain
-	 * @throws Exception any exception
-	 */
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		//using JWT instead of CSRF, may want to learn more about this
+		// using JWT instead of CSRF, may want to learn more about this
 		http.cors().and().csrf().disable();
 		return http.build();
 	}
 
-	/**
-	 * CORS config for CORS settings.
-	 * @return CORS config bean
-	 */
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
 		corsConfiguration.setAllowCredentials(true);
-		corsConfiguration.setAllowedOrigins(Arrays.asList("https://maze-website-frontend.web.app"));
+		corsConfiguration
+				.setAllowedOrigins(Arrays.asList("https://maze-website-frontend.web.app", "http://localhost:4200"));
 		corsConfiguration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type",
 				"Access-Control-Allow-Origin", "X-Requested-With"));
 		corsConfiguration.setExposedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type",
