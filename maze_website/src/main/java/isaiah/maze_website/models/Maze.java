@@ -101,7 +101,7 @@ public class Maze {
 	 * Maze constructor, which allows specified dimensions. Dimensions limited to
 	 * between 5 and 20.
 	 * 
-	 * @param dimensions
+	 * @param dimensions dimensions of square maze (5 to 20 inclusive)
 	 */
 	public Maze(int dimensions) {
 		// validate input dimensions
