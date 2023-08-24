@@ -35,7 +35,8 @@ public class WebSecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		// using JWT instead of CSRF, may want to learn more about this
+		// May want to learn spring security properly at some point.
+		// Using JWT instead of CSRF, may want to learn more about this.
 		http.cors().and().csrf().disable();
 		return http.build();
 	}

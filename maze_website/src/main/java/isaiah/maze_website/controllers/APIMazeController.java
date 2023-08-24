@@ -86,7 +86,11 @@ public class APIMazeController {
 	 */
 	@PostMapping("/mazeinfo/check")
 	public ResponseEntity<Boolean> checkSolution(@RequestBody int[][] attempt) {
-		Maze maze = new Maze(attempt.length);
-		return new ResponseEntity<>(maze.checkSolution(attempt), HttpStatus.OK);
+		try {
+			Maze maze = new Maze(attempt.length);
+			return new ResponseEntity<>(maze.checkSolution(attempt), HttpStatus.OK);
+		} catch (IllegalArgumentException e) {
+			return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+		}
 	}
 }

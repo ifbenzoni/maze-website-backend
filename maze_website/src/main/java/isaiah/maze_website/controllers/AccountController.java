@@ -190,7 +190,7 @@ public class AccountController {
 			User dbUser = userService.getUser(new User(null, claims.get("username", String.class), null, null, null));
 			List<int[][]> updatedSavedMazes = new ArrayList<int[][]>();
 			updatedSavedMazes.addAll(dbUser.getSavedMazes());
-			updatedSavedMazes.remove(0);
+			updatedSavedMazes.remove(index);
 			dbUser.setSavedMazes(updatedSavedMazes);
 			userService.addUser(dbUser);
 			return new ResponseEntity<>(true, HttpStatus.OK);
