@@ -46,7 +46,7 @@ public class WebSecurityConfig {
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
 		corsConfiguration.setAllowCredentials(true);
 		corsConfiguration
-				.setAllowedOrigins(Arrays.asList("https://maze-website-frontend.web.app"));
+				.setAllowedOrigins(Arrays.asList("https://maze-website-frontend.web.app"));//"https://localhost:4200"
 		corsConfiguration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type",
 				"Access-Control-Allow-Origin", "X-Requested-With"));
 		corsConfiguration.setExposedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type",

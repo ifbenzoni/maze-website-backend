@@ -2,6 +2,7 @@ application.yml
 *.properties
 *.sql
 *.p12
+*.pem
 
 # Created by https://www.toptal.com/developers/gitignore/api/eclipse
 # Edit at https://www.toptal.com/developers/gitignore?templates=eclipse
