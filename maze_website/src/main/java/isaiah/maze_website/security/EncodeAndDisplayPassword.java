@@ -17,7 +17,7 @@ public final class EncodeAndDisplayPassword {
 	 * @param args default
 	 */
 	public static void main(String[] args) {
-		String password = "test_password";
+		String password = "";
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		System.out.println(passwordEncoder.encode(password));
 	}
