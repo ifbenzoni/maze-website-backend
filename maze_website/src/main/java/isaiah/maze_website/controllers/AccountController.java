@@ -77,7 +77,8 @@ public class AccountController {
 	}
 
 	/**
-	 * Creates account and uses provided jwt to authenticate and authorize. Checks for exceptions thrown by UserService.
+	 * Creates account and uses provided jwt to authenticate and authorize. Checks
+	 * for exceptions thrown by UserService.
 	 * 
 	 * @param token jwt
 	 * @param user  user
@@ -88,15 +89,15 @@ public class AccountController {
 		// authorization check
 		Claims claims = jwtUtils.getClaims(token);
 		if (claims.get("role", String.class).equals(Role.ADMIN.toString())) {
-            try {
-			    userService.addUser(user);
-            } catch (MaxUsersReachedException e) {
-                System.out.println(e.getMessage());
-                return new ResponseEntity<>(false, HttpStatus.CONFLICT);
-            } catch (UsernameConflictException e) {
-                System.out.println(e.getMessage());
-                return new ResponseEntity<>(false, HttpStatus.CONFLICT);
-            }
+			try {
+				userService.addUser(user);
+			} catch (MaxUsersReachedException e) {
+				System.out.println(e.getMessage());
+				return new ResponseEntity<>(false, HttpStatus.CONFLICT);
+			} catch (UsernameConflictException e) {
+				System.out.println(e.getMessage());
+				return new ResponseEntity<>(false, HttpStatus.CONFLICT);
+			}
 			return new ResponseEntity<>(true, HttpStatus.OK);
 		}
 		return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);

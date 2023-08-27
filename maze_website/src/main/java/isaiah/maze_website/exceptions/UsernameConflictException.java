@@ -1,7 +1,10 @@
 package isaiah.maze_website.exceptions;
 
 public class UsernameConflictException extends Exception {
-    public UsernameConflictException (String errorMessage) {
-        super(errorMessage);
-    }
+
+	private static final long serialVersionUID = 1L;
+
+	public UsernameConflictException(String errorMessage) {
+		super(errorMessage);
+	}
 }

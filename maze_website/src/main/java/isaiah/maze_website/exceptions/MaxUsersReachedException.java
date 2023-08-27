@@ -1,7 +1,10 @@
 package isaiah.maze_website.exceptions;
 
 public class MaxUsersReachedException extends Exception {
-    public MaxUsersReachedException (String errorMessage) {
-        super(errorMessage);
-    }
+
+	private static final long serialVersionUID = 1L;
+
+	public MaxUsersReachedException(String errorMessage) {
+		super(errorMessage);
+	}
 }

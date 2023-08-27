@@ -17,44 +17,55 @@ import jakarta.transaction.Transactional;
 @Transactional
 public class UserService {
 
-    private static final int MAX_SAVED_USERS = 10;
+	private static final int MAX_SAVED_USERS = 10;
 
 	@Autowired
 	private UserRepository userRepository;
 
-    @Autowired
+	@Autowired
 	private PasswordEncoder passwordEncoder;
 
+	/**
+	 * Checks and formats user. Calls UserRepository to add user to database. Checks
+	 * that max users in database not exceeded and that user's name is not a
+	 * duplicate. Sets user's id to the lowest unused value and uses PasswordEncoder
+	 * to encode password.
+	 * 
+	 * @param user input user
+	 * @return saved user
+	 * @throws MaxUsersReachedException  thrown if max users in database reached
+	 * @throws UsernameConflictException thrown if user's username is a duplicate
+	 */
 	public User addUser(User user) throws MaxUsersReachedException, UsernameConflictException {
-        List<User> allUsers = userRepository.findAll();
-        // saved users limit
+		List<User> allUsers = userRepository.findAll();
+		// saved users limit
 		if (allUsers.size() >= MAX_SAVED_USERS) {
 			throw new MaxUsersReachedException("Maximum number of users in database has been reached.");
 		}
-        // conflict check
+		// conflict check
 		for (User u : allUsers) {
 			if (u.getUsername().equals(user.getUsername())) {
 				throw new UsernameConflictException("Should not have duplicate usernames in database.");
 			}
 		}
-        //set id
-        List<Long> allIds = new ArrayList<Long>();
-        for (User u : allUsers) {
-            allIds.add(u.getId());
-        }
-        Long newId = 1L;
-        while(allIds.contains(newId)) {
-            newId++;
-        }
-        user.setId(newId);
-        //encode password
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+		// set id
+		List<Long> allIds = new ArrayList<Long>();
+		for (User u : allUsers) {
+			allIds.add(u.getId());
+		}
+		Long newId = 1L;
+		while (allIds.contains(newId)) {
+			newId++;
+		}
+		user.setId(newId);
+		// encode password
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		return userRepository.saveAndFlush(user);
 	}
 
-    public User updateUser(User user) {
-        return userRepository.saveAndFlush(user);
-    }
+	public User updateUser(User user) {
+		return userRepository.saveAndFlush(user);
+	}
 
 	public void removeUser(User user) {
 		userRepository.delete(user);
