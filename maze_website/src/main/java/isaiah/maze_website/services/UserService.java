@@ -26,10 +26,11 @@ public class UserService {
 	private PasswordEncoder passwordEncoder;
 
 	/**
-	 * Checks and formats user. Calls UserRepository to add user to database. Checks
-	 * that max users in database not exceeded and that user's name is not a
-	 * duplicate. Sets user's id to the lowest unused value and uses PasswordEncoder
-	 * to encode password.
+	 * Checks and formats user. Calls UserRepository to add user to database.
+	 * Process for setting the input user's id: create list of all user ids in db,
+	 * Long starting at one is incremented until an id is found that is not in the
+	 * list of ids currently in db.
+	 * 
 	 * 
 	 * @param user input user
 	 * @return saved user
