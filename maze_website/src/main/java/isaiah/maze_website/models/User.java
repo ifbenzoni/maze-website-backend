@@ -24,7 +24,7 @@ public class User {
 	private static final int MAX_LENGTH_PASSWORD = 255;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	//@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false, updatable = false)
 	private Long id;
 

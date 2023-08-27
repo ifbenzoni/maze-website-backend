@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.Gson;
 
 import io.jsonwebtoken.Claims;
+import isaiah.maze_website.exceptions.MaxUsersReachedException;
+import isaiah.maze_website.exceptions.UsernameConflictException;
 import isaiah.maze_website.models.Role;
 import isaiah.maze_website.models.User;
 import isaiah.maze_website.security.jwt.JwtUtils;
@@ -25,7 +27,6 @@ import isaiah.maze_website.services.UserService;
 @RequestMapping("/accounts")
 public class AccountController {
 
-	private static final int MAX_SAVED_USERS = 10;
 	private static final int MAX_SAVED_MAZES = 10;
 
 	@Autowired
@@ -76,8 +77,7 @@ public class AccountController {
 	}
 
 	/**
-	 * Creates account and uses provided jwt to authenticate and authorize. Limits
-	 * number of users in database to 10.
+	 * Creates account and uses provided jwt to authenticate and authorize. Checks for exceptions thrown by UserService.
 	 * 
 	 * @param token jwt
 	 * @param user  user
@@ -85,22 +85,18 @@ public class AccountController {
 	 */
 	@PostMapping("/create/{token}")
 	public ResponseEntity<Boolean> createAccount(@PathVariable String token, @RequestBody User user) {
-		// conflict check
-		List<User> allUsers = userService.getAllUsers();
-		for (User u : allUsers) {
-			if (u.getUsername().equals(user.getUsername())) {
-				return new ResponseEntity<>(false, HttpStatus.CONFLICT);
-			}
-		}
-		// saved users limit
-		if (allUsers.size() >= MAX_SAVED_USERS) {
-			return new ResponseEntity<>(false, HttpStatus.CONFLICT);
-		}
 		// authorization check
 		Claims claims = jwtUtils.getClaims(token);
 		if (claims.get("role", String.class).equals(Role.ADMIN.toString())) {
-			user.setPassword(passwordEncoder.encode(user.getPassword()));
-			userService.addUser(user);
+            try {
+			    userService.addUser(user);
+            } catch (MaxUsersReachedException e) {
+                System.out.println(e.getMessage());
+                return new ResponseEntity<>(false, HttpStatus.CONFLICT);
+            } catch (UsernameConflictException e) {
+                System.out.println(e.getMessage());
+                return new ResponseEntity<>(false, HttpStatus.CONFLICT);
+            }
 			return new ResponseEntity<>(true, HttpStatus.OK);
 		}
 		return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
@@ -167,7 +163,7 @@ public class AccountController {
 				updatedSavedMazes.addAll(dbUser.getSavedMazes());
 				updatedSavedMazes.add(maze);
 				dbUser.setSavedMazes(updatedSavedMazes);
-				userService.addUser(dbUser);
+				userService.updateUser(dbUser);
 				return new ResponseEntity<>(true, HttpStatus.OK);
 			}
 			return new ResponseEntity<>(false, HttpStatus.CONFLICT);
@@ -192,7 +188,7 @@ public class AccountController {
 			updatedSavedMazes.addAll(dbUser.getSavedMazes());
 			updatedSavedMazes.remove(index);
 			dbUser.setSavedMazes(updatedSavedMazes);
-			userService.addUser(dbUser);
+			userService.updateUser(dbUser);
 			return new ResponseEntity<>(true, HttpStatus.OK);
 		}
 		return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
