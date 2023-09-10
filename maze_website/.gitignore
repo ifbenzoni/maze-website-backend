@@ -3,12 +3,6 @@ application.yml
 *.sql
 *.p12
 *.pem
-*.cert
-*.yaml 
-*.key
-*.cnf
-*.crt
-*.req
 
 # Created by https://www.toptal.com/developers/gitignore/api/eclipse
 # Edit at https://www.toptal.com/developers/gitignore?templates=eclipse
