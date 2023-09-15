@@ -149,7 +149,7 @@ public class Maze {
 	 * @param yStart starting y value for subsection of maze to generate walls for
 	 * @param yEnd   ending y value for subsection of maze to generate walls for
 	 */
-	public void recursiveDivisionGeneration(final int xStart, final int xEnd, final int yStart, final int yEnd) {
+	private void recursiveDivisionGeneration(final int xStart, final int xEnd, final int yStart, final int yEnd) {
 
 		// wall position, one space buffer for x and y values
 		int x = r.nextInt(xEnd - (xStart + 1)) + (xStart + 1);
@@ -272,7 +272,7 @@ public class Maze {
 	 * 
 	 * @param startPos position on maze to start at
 	 */
-	public void dfsGeneration(int[] startPos) {
+	private void dfsGeneration(int[] startPos) {
 
 		List<Integer> dirOptions = new ArrayList<Integer>(Arrays.asList(DIR1, DIR2, DIR3, DIR4));
 
@@ -403,7 +403,6 @@ public class Maze {
 		for (int i = 0; i < values.length; i++) {
 			for (int j = 0; j < values[0].length; j++) {
 				values[i][j] = r.nextInt(2);
-				System.out.println(r.nextInt(2));
 			}
 		}
 
@@ -423,7 +422,7 @@ public class Maze {
 	/**
 	 * Potential future addition.
 	 */
-	public void automataGeneration() {
+	private void automataGeneration() {
 
 		// maybe add this
 
