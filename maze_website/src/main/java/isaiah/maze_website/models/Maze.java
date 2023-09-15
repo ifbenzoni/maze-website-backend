@@ -394,6 +394,33 @@ public class Maze {
 	}
 
 	/**
+	 * Starting point for automata generation. Sets random-ish initial values, first
+	 * step, and target positions.
+	 */
+	public void automataGenerationStart() {
+
+		// randomly set each position to one or zero
+		for (int i = 0; i < values.length; i++) {
+			for (int j = 0; j < values[0].length; j++) {
+				values[i][j] = r.nextInt(2);
+				System.out.println(r.nextInt(2));
+			}
+		}
+
+		// add initial values to steps array
+		int[][] valuesCurrent = new int[dimensions][dimensions];
+		copyValues(valuesCurrent);
+		steps.add(valuesCurrent);
+
+		// call recursive function
+		automataGeneration();
+
+		// set goals to target position
+		values[0][0] = TARGET_POSITION;
+		values[values.length - 1][values.length - 1] = TARGET_POSITION;
+	}
+
+	/**
 	 * Potential future addition.
 	 */
 	public void automataGeneration() {
