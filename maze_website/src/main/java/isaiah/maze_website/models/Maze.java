@@ -434,7 +434,7 @@ public class Maze {
 	 */
 	private void automataGeneration() {
 
-		// maybe add this
+		// TODO: implement & use rulestring constants
 
 	}
 
