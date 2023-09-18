@@ -73,6 +73,16 @@ public class Maze {
 	 * Value representing an empty position in maze.
 	 */
 	private static final int EMPTY = 0;
+	
+	/**
+	 * Born section of rulestring for cellular automata generation.
+	 */
+	private static final int[] BORN = {3};
+	
+	/**
+	 * Survive section of rulestring for cellular automata generation.
+	 */
+	private static final int[] SURVIVE = {1, 2, 3, 4, 5};
 
 	/**
 	 * Variable for specified dimensions.
