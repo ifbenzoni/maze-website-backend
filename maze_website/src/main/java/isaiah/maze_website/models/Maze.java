@@ -435,6 +435,20 @@ public class Maze {
 	private void automataGeneration() {
 
 		// TODO: implement & use rulestring constants
+		
+		//base case
+		if (steps.contains(values)) {
+			//TODO: stop here
+		}
+		
+		//TODO: updates here
+		
+		//update steps
+		int[][] valuesCurrent = new int[dimensions][dimensions];
+		copyValues(valuesCurrent);
+		steps.add(valuesCurrent);
+		
+		//TODO: recursion here
 
 	}
 
