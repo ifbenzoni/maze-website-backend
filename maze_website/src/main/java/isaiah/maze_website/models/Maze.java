@@ -424,6 +424,7 @@ public class Maze {
 		values[values.length - 1][values.length - 1] = TARGET_POSITION;
 
 		// TODO: ensure solvable here
+		// TODO: javadocs
 	}
 
 	/**
@@ -472,6 +473,12 @@ public class Maze {
 		if (!stepsContains(values)) {
 			automataGeneration();
 		}
+	}
+	
+	public void binaryTreeGeneration() {
+		
+		//TODO: north or west for each position in grid
+		
 	}
 
 	/**
