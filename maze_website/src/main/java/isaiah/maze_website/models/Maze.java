@@ -73,16 +73,16 @@ public class Maze {
 	 * Value representing an empty position in maze.
 	 */
 	private static final int EMPTY = 0;
-	
+
 	/**
 	 * Born section of rulestring for cellular automata generation.
 	 */
-	private static final int[] BORN = {3};
-	
+	private static final List<Integer> BORN = Arrays.asList(3);
+
 	/**
 	 * Survive section of rulestring for cellular automata generation.
 	 */
-	private static final int[] SURVIVE = {1, 2, 3, 4, 5};
+	private static final List<Integer> SURVIVE = Arrays.asList(1, 2, 3, 4, 5);
 
 	/**
 	 * Variable for specified dimensions.
@@ -404,8 +404,8 @@ public class Maze {
 	}
 
 	/**
-	 * Starting point for automata generation. Sets random-ish initial values, first
-	 * step, and target positions.
+	 * Starting point for automata generation. Sets random-ish initial values,
+	 * target positions, and ensures solvable.
 	 */
 	public void automataGenerationStart() {
 
@@ -416,17 +416,14 @@ public class Maze {
 			}
 		}
 
-		// add initial values to steps array
-		int[][] valuesCurrent = new int[dimensions][dimensions];
-		copyValues(valuesCurrent);
-		steps.add(valuesCurrent);
-
 		// call recursive function
 		automataGeneration();
 
 		// set goals to target position
 		values[0][0] = TARGET_POSITION;
 		values[values.length - 1][values.length - 1] = TARGET_POSITION;
+
+		// TODO: ensure solvable here
 	}
 
 	/**
@@ -434,22 +431,47 @@ public class Maze {
 	 */
 	private void automataGeneration() {
 
-		// TODO: implement & use rulestring constants
-		
-		//base case
-		if (steps.contains(values)) {
-			//TODO: stop here
-		}
-		
-		//TODO: updates here
-		
-		//update steps
+		// update steps
 		int[][] valuesCurrent = new int[dimensions][dimensions];
 		copyValues(valuesCurrent);
 		steps.add(valuesCurrent);
-		
-		//TODO: recursion here
 
+		// temporary array to store updated values discretely
+		int[][] tempArray = new int[dimensions][dimensions];
+
+		for (int i = 0; i < values.length; i++) {
+			for (int j = 0; j < values[0].length; j++) {
+				// check nearest eight cells' state
+				int liveCellCount = 0;
+				for (int x = -1; x < 2; x++) {
+					for (int y = -1; y < 2; y++) {
+						// bound edges instead of wrapping
+						if (i + x >= 0 && j + y >= 0 && i + x < values.length && j + y < values[0].length
+								&& values[i + x][j + y] == 1) {
+							liveCellCount++;
+						}
+					}
+				}
+				// set live cells, default for remaining is zero
+				if (BORN.contains(liveCellCount)) {
+					tempArray[i][j] = 1;
+				} else if (SURVIVE.contains(liveCellCount) && values[i][j] == 1) {
+					tempArray[i][j] = 1;
+				}
+			}
+		}
+
+		// update values
+		for (int i = 0; i < values.length; i++) {
+			for (int j = 0; j < values[0].length; j++) {
+				values[i][j] = tempArray[i][j];
+			}
+		}
+
+		// base case: steps contains current maze
+		if (!stepsContains(values)) {
+			automataGeneration();
+		}
 	}
 
 	/**
@@ -518,6 +540,23 @@ public class Maze {
 				dest[j][i] = values[j][i];
 			}
 		}
+	}
+
+	/**
+	 * Helper function used to check if steps contains a set of values.
+	 * 
+	 * @param val values potentially contained in steps.
+	 * @return t/f values exist in steps
+	 */
+	private boolean stepsContains(int[][] val) {
+		boolean output = false;
+		for (int x = 0; x < steps.size(); x++) {
+			if (Arrays.deepToString(steps.get(x)).equals(Arrays.deepToString(val))) {
+				output = true;
+				break;
+			}
+		}
+		return output;
 	}
 
 }
