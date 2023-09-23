@@ -428,7 +428,8 @@ public class Maze {
 	}
 
 	/**
-	 * Potential future addition.
+	 * Generates a maze recursively by running a cellular automata with rulestring
+	 * B3S12345. Ends on repeated values to cover static values and oscillation.
 	 */
 	private void automataGeneration() {
 
@@ -474,11 +475,11 @@ public class Maze {
 			automataGeneration();
 		}
 	}
-	
+
 	public void binaryTreeGeneration() {
-		
-		//TODO: north or west for each position in grid
-		
+
+		// TODO: north or west for each position in grid
+
 	}
 
 	/**
