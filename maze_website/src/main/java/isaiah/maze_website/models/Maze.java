@@ -579,17 +579,17 @@ public class Maze {
 		}
 		return output;
 	}
-	
+
 	/**
-	 * Helper method that ensures maze is solvable. Randomly connects two sections of maze until
-	 * solvable.
+	 * Helper method that ensures maze is solvable. Randomly connects two sections
+	 * of maze until solvable.
 	 */
 	private void ensureSolvable() {
 
 		Map<Integer, int[]> hm = new HashMap<Integer, int[]>();
 
-		// set empty positions to selected for check solution method; also add target
-		// positions to map
+		// set empty positions to selected for check solution method; also add selected
+		// and target positions to map
 		for (int i = 0; i < values.length; i++) {
 			for (int j = 0; j < values.length; j++) {
 				if (values[i][j] == EMPTY) {
