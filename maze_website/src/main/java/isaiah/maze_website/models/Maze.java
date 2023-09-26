@@ -2,6 +2,8 @@ package isaiah.maze_website.models;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Stack;
@@ -423,8 +425,18 @@ public class Maze {
 		values[0][0] = TARGET_POSITION;
 		values[values.length - 1][values.length - 1] = TARGET_POSITION;
 
-		// TODO: ensure solvable here
-		// TODO: javadocs
+		// update steps - adds automata maze with target positions
+		int[][] valuesCurrent = new int[dimensions][dimensions];
+		copyValues(valuesCurrent);
+		steps.add(valuesCurrent);
+
+		// ensures maze can be solved
+		ensureSolvable();
+
+		// update steps - adds completed maze without select positions
+		valuesCurrent = new int[dimensions][dimensions];
+		copyValues(valuesCurrent);
+		steps.add(valuesCurrent);
 	}
 
 	/**
@@ -476,6 +488,7 @@ public class Maze {
 		}
 	}
 
+	// TODO: javadoc & generate
 	public void binaryTreeGeneration() {
 
 		// TODO: north or west for each position in grid
@@ -485,7 +498,7 @@ public class Maze {
 	/**
 	 * Checks whether attempt is correct or not. Uses DFS + Stack.
 	 *
-	 * @param attempt Int array with information about solution.
+	 * @param attempt int array with information about solution.
 	 * @return returns true if correct
 	 */
 	public boolean checkSolution(int[][] attempt) {
@@ -533,6 +546,17 @@ public class Maze {
 	public static void main(String[] args) {
 
 		// testing area
+		Maze maze = new Maze();
+		maze.automataGenerationStart();
+		for (int x = 0; x < maze.getSteps().size(); x++) {
+			System.out.println();
+			for (int i = 0; i < maze.getSteps().get(x).length; i++) {
+				System.out.println();
+				for (int j = 0; j < maze.getSteps().get(x).length; j++) {
+					System.out.print(maze.getSteps().get(x)[i][j]);
+				}
+			}
+		}
 
 	}
 
@@ -565,6 +589,74 @@ public class Maze {
 			}
 		}
 		return output;
+	}
+	
+	/**
+	 * Helper method that ensures maze is solvable. Randomly connects two sections of maze until
+	 * solvable.
+	 */
+	private void ensureSolvable() {
+
+		Map<Integer, int[]> hm = new HashMap<Integer, int[]>();
+
+		// set empty positions to selected for check solution method; also add target
+		// positions to map
+		for (int i = 0; i < values.length; i++) {
+			for (int j = 0; j < values.length; j++) {
+				if (values[i][j] == EMPTY) {
+					values[i][j] = SELECTED_POSITION;
+					int[] hmValue = { i, j };
+					hm.put(hm.size(), hmValue);
+				} else if (values[i][j] == TARGET_POSITION) {
+					int[] hmValue = { i, j };
+					hm.put(hm.size(), hmValue);
+				}
+			}
+		}
+
+		// temporary values array for checkSolution() to modify
+		int[][] valuesTemp = new int[dimensions][dimensions];
+		copyValues(valuesTemp);
+
+		// repeat until solvable
+		while (!checkSolution(valuesTemp)) {
+			// choose two random positions from selected positions in hash map
+			int hmKeyRandom = r.nextInt(hm.size());
+			int[] pos = hm.get(hmKeyRandom);
+			hmKeyRandom = r.nextInt(hm.size());
+			int[] pos2 = hm.get(hmKeyRandom);
+
+			// sets right or left for each axis based on positions
+			int dir[] = { pos[0] - pos2[0] != 0 ? (pos[0] - pos2[0]) / Math.abs(pos[0] - pos2[0]) : 0,
+					pos[1] - pos2[1] != 0 ? (pos[1] - pos2[1]) / Math.abs(pos[1] - pos2[1]) : 0 };
+
+			// clear walls between positions
+			while (pos[0] != pos2[0] && pos[1] != pos2[1]) {
+				if (Math.abs(pos[0] - pos2[0]) > Math.abs(pos[1] - pos2[1])) {
+					pos2[0] += dir[0];
+				} else {
+					pos2[1] += dir[1];
+				}
+				values[pos2[0]][pos2[1]] = SELECTED_POSITION;
+			}
+
+			// reset temp values
+			copyValues(valuesTemp);
+
+			// add values to steps
+			int[][] valuesCurrent = new int[dimensions][dimensions];
+			copyValues(valuesCurrent);
+			steps.add(valuesCurrent);
+		}
+
+		// set selected positions back to empty
+		for (int i = 0; i < values.length; i++) {
+			for (int j = 0; j < values.length; j++) {
+				if (values[i][j] == SELECTED_POSITION) {
+					values[i][j] = EMPTY;
+				}
+			}
+		}
 	}
 
 }
