@@ -433,7 +433,7 @@ public class Maze {
 		// ensures maze can be solved
 		ensureSolvable();
 
-		// update steps - adds completed maze without select positions
+		// update steps - adds completed maze without selected positions
 		valuesCurrent = new int[dimensions][dimensions];
 		copyValues(valuesCurrent);
 		steps.add(valuesCurrent);
