@@ -1,4 +1,5 @@
 isaiah.maze_website
+isaiah.maze_website.api
 isaiah.maze_website.controllers
 isaiah.maze_website.converters
 isaiah.maze_website.exceptions
@@ -7,3 +8,5 @@ isaiah.maze_website.repositories
 isaiah.maze_website.security
 isaiah.maze_website.security.jwt
 isaiah.maze_website.services
+isaiah.maze_website.unit.db
+isaiah.maze_website.unit.model
