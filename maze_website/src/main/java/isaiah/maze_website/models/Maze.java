@@ -546,17 +546,6 @@ public class Maze {
 	public static void main(String[] args) {
 
 		// testing area
-		Maze maze = new Maze();
-		maze.automataGenerationStart();
-		for (int x = 0; x < maze.getSteps().size(); x++) {
-			System.out.println();
-			for (int i = 0; i < maze.getSteps().get(x).length; i++) {
-				System.out.println();
-				for (int j = 0; j < maze.getSteps().get(x).length; j++) {
-					System.out.print(maze.getSteps().get(x)[i][j]);
-				}
-			}
-		}
 
 	}
 
