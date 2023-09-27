@@ -586,19 +586,20 @@ public class Maze {
 	 */
 	private void ensureSolvable() {
 
-		Map<Integer, int[]> hm = new HashMap<Integer, int[]>();
+		Map<Integer, int[]> hmSelected = new HashMap<Integer, int[]>();
+		Map<Integer, int[]> hmTarget = new HashMap<Integer, int[]>();
 
 		// set empty positions to selected for check solution method; also add selected
-		// and target positions to map
+		// and target positions to separate hash maps
 		for (int i = 0; i < values.length; i++) {
 			for (int j = 0; j < values.length; j++) {
 				if (values[i][j] == EMPTY) {
 					values[i][j] = SELECTED_POSITION;
 					int[] hmValue = { i, j };
-					hm.put(hm.size(), hmValue);
+					hmSelected.put(hmSelected.size(), hmValue);
 				} else if (values[i][j] == TARGET_POSITION) {
 					int[] hmValue = { i, j };
-					hm.put(hm.size(), hmValue);
+					hmTarget.put(hmTarget.size(), hmValue);
 				}
 			}
 		}
@@ -609,11 +610,12 @@ public class Maze {
 
 		// repeat until solvable
 		while (!checkSolution(valuesTemp)) {
-			// choose two random positions from selected positions in hash map
-			int hmKeyRandom = r.nextInt(hm.size());
-			int[] pos = hm.get(hmKeyRandom);
-			hmKeyRandom = r.nextInt(hm.size());
-			int[] pos2 = hm.get(hmKeyRandom);
+			// choose random selected position in hash map
+			int hmKeyRandom = r.nextInt(hmSelected.size());
+			int[] pos = hmSelected.get(hmKeyRandom);
+			// choose random target position in hash map
+			hmKeyRandom = r.nextInt(hmTarget.size());
+			int[] pos2 = hmTarget.get(hmKeyRandom);
 
 			// sets right or left for each axis based on positions
 			int dir[] = { pos[0] - pos2[0] != 0 ? (pos[0] - pos2[0]) / Math.abs(pos[0] - pos2[0]) : 0,
