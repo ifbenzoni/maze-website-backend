@@ -30,7 +30,7 @@ public class APIMazeController {
 		if ("recursive division".equals(generationType)) {
 			maze.recursiveDivisionGenerationStart();
 		}
-		if ("CA generation".equals(generationType)) {
+		if ("ca generation".equals(generationType)) {
 			maze.automataGenerationStart();
 		}
 		int[][] generatedMaze = maze.getValues();
@@ -55,7 +55,7 @@ public class APIMazeController {
 			if ("recursive division".equals(generationType)) {
 				maze.recursiveDivisionGenerationStart();
 			}
-			if ("CA generation".equals(generationType)) {
+			if ("ca generation".equals(generationType)) {
 				maze.automataGenerationStart();
 			}
 			int[][] generatedMaze = maze.getValues();
@@ -81,7 +81,7 @@ public class APIMazeController {
 		if ("recursive division".equals(generationType)) {
 			maze.recursiveDivisionGenerationStart();
 		}
-		if ("CA generation".equals(generationType)) {
+		if ("ca generation".equals(generationType)) {
 			
 		}
 		return new ResponseEntity<>(maze.getSteps(), HttpStatus.OK);
