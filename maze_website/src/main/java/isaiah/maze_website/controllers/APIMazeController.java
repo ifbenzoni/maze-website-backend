@@ -82,7 +82,7 @@ public class APIMazeController {
 			maze.recursiveDivisionGenerationStart();
 		}
 		if ("ca generation".equals(generationType)) {
-			
+			maze.automataGenerationStart();
 		}
 		return new ResponseEntity<>(maze.getSteps(), HttpStatus.OK);
 	}
