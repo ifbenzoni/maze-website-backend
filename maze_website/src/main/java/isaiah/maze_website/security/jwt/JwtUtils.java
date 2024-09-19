@@ -34,7 +34,7 @@ public class JwtUtils {
 	/**
 	 * JWT expiration in minutes.
 	 */
-	private static final Long JWT_EXPIRATION = 60L;
+	private static final Long JWT_EXPIRATION = 15L;
 
 	/**
 	 * Milliseconds in a minute.
