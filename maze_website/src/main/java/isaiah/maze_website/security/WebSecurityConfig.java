@@ -48,9 +48,9 @@ public class WebSecurityConfig {
 		corsConfiguration
 				.setAllowedOrigins(Arrays.asList("https://amazing-website.party", "https://maze-website-frontend.web.app"));//"https://localhost:4200", "http://localhost:4200"
 		corsConfiguration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type",
-				"Access-Control-Allow-Origin", "X-Requested-With"));
+				"Access-Control-Allow-Origin", "X-Requested-With", "Origin"));
 		corsConfiguration.setExposedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type",
-				"Access-Control-Allow-Origin", "X-Requested-With"));
+				"Access-Control-Allow-Origin", "X-Requested-With", "Origin"));
 		corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		corsConfiguration.setMaxAge(MAX_AGE_CORS);
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
