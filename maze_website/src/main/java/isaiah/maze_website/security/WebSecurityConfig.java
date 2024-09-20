@@ -1,6 +1,7 @@
 package isaiah.maze_website.security;
 
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,9 +25,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class WebSecurityConfig {
 
 	/**
-	 * Max age of CORS pre-flight.
+	 * Max age of CORS pre-flight. - matching default val
 	 */
-	private static final long MAX_AGE_CORS = 3600L;
+	private static final long MAX_AGE_CORS = 1800L;
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -35,8 +36,6 @@ public class WebSecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		// May want to learn spring security properly at some point.
-		// Using JWT instead of CSRF, may want to learn more about this.
 		http.cors().and().csrf().disable();
 		return http.build();
 	}
@@ -44,15 +43,15 @@ public class WebSecurityConfig {
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
-		corsConfiguration.setAllowCredentials(true);
-		corsConfiguration
-				.setAllowedOrigins(Arrays.asList("https://amazing-website.party", "https://maze-website-frontend.web.app"));//"https://localhost:4200", "http://localhost:4200"
-		corsConfiguration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type",
-				"Access-Control-Allow-Origin", "X-Requested-With", "Origin"));
-		corsConfiguration.setExposedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type",
-				"Access-Control-Allow-Origin", "X-Requested-With", "Origin"));
-		corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		//corsConfiguration.applyPermitDefaultValues();
+		List<String> allowedOrigins = List.of("https://amazing-website.party", "https://maze-website-frontend.web.app");//"https://localhost:4200", "http://localhost:4200"
+		corsConfiguration.setAllowedOrigins(allowedOrigins);
+		List<String> allowedHeaders = Collections.singletonList("*");
+		corsConfiguration.setAllowedHeaders(allowedHeaders);
+		List<String> allowedMethods = List.of("GET", "POST", "PUT", "DELETE", "OPTIONS");
+		corsConfiguration.setAllowedMethods(allowedMethods);
 		corsConfiguration.setMaxAge(MAX_AGE_CORS);
+
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", corsConfiguration);
 		return source;
