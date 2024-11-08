@@ -51,6 +51,7 @@ public class WebSecurityConfig {
 		List<String> allowedMethods = List.of("GET", "POST", "PUT", "DELETE", "OPTIONS");
 		corsConfiguration.setAllowedMethods(allowedMethods);
 		corsConfiguration.setMaxAge(MAX_AGE_CORS);
+	    corsConfiguration.setAllowCredentials(true);//important for cookies
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", corsConfiguration);

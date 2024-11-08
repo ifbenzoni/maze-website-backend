@@ -7,9 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,6 +23,8 @@ import isaiah.maze_website.models.Role;
 import isaiah.maze_website.models.User;
 import isaiah.maze_website.security.jwt.JwtUtils;
 import isaiah.maze_website.services.UserService;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/accounts")
@@ -43,27 +46,46 @@ public class AccountController {
 	 * from database and compares passwords with passwordEncoder.
 	 * 
 	 * @param user user info for login
+	 * @param response http servlet response for setting jwt
 	 * @return jwt for user and http status
 	 */
 	@PostMapping("/login")
-	public ResponseEntity<String> login(@RequestBody User user) {
+	public ResponseEntity<String> login(@RequestBody User user, HttpServletResponse response) {
 		User retrievedUser = (userService.getUser(user));
 		if (retrievedUser == null || !passwordEncoder.matches(user.getPassword(), retrievedUser.getPassword())) {
 			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-		} else {
-			String jwt = jwtUtils.generateJwt(retrievedUser);
-			return new ResponseEntity<>(new Gson().toJson(jwt), HttpStatus.OK);
 		}
+		String jwt = jwtUtils.generateJwt(retrievedUser);
+		
+		//can remove Secure; SameSite=None (if needed when testing on localhost)
+		response.addHeader("Set-Cookie", "userInfoJwt=" + jwt + "; Path=/; HttpOnly; Secure; SameSite=None");
+		
+        return new ResponseEntity<>(new Gson().toJson("Login successful"), HttpStatus.OK);
 	}
 
 	/**
 	 * Uses jwt to check role. Sends details if valid.
 	 * 
-	 * @param token jwt stored on frontend
+	 * @param cookies cookie details from frontend (jwt)
 	 * @return user details and http status
 	 */
-	@PostMapping("/jwtUserDetails")
-	public ResponseEntity<List<String>> detailsFromJwt(@RequestBody String token) {
+	@GetMapping("/jwtUserDetails")
+	public ResponseEntity<List<String>> detailsFromJwt(@RequestHeader(value = "Cookie", required = false) String cookies) {
+	    //getting token from cookie
+		String token = null;
+	    if (cookies != null) {
+	        for (String cookie : cookies.split(";")) {
+	            if (cookie.trim().startsWith("userInfoJwt=")) {
+	                token = cookie.split("=")[1].trim();
+	                break;
+	            }
+	        }
+	    }
+	    if (token == null) {
+	        return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+	    }
+		
+	    //check jwt & retrieve details
 		try {
 			Claims claims = jwtUtils.getClaims(token);
 			List<String> userInfo = new ArrayList<String>();
@@ -80,13 +102,27 @@ public class AccountController {
 	 * Creates account and uses provided jwt to authenticate and authorize. Checks
 	 * for exceptions thrown by UserService.
 	 * 
-	 * @param token jwt
+	 * @param cookies cookie details from frontend (jwt)
 	 * @param user  user
 	 * @return success of adding user and http status
 	 */
-	@PostMapping("/create/{token}")
-	public ResponseEntity<Boolean> createAccount(@PathVariable String token, @RequestBody User user) {
-		// authorization check
+	@PostMapping("/create")
+	public ResponseEntity<Boolean> createAccount(@RequestHeader(value = "Cookie", required = false) String cookies, @RequestBody User user) {
+	    //getting token from cookie
+		String token = null;
+	    if (cookies != null) {
+	        for (String cookie : cookies.split(";")) {
+	            if (cookie.trim().startsWith("userInfoJwt=")) {
+	                token = cookie.split("=")[1].trim();
+	                break;
+	            }
+	        }
+	    }
+	    if (token == null) {
+	        return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+	    }
+		
+		// authorization check & create acc
 		Claims claims = jwtUtils.getClaims(token);
 		if (claims.get("role", String.class).equals(Role.ADMIN.toString())) {
 			try {
@@ -106,13 +142,27 @@ public class AccountController {
 	/**
 	 * Uses jwt to check role. Removes user from db.
 	 * 
-	 * @param token jwt
+	 * @param cookies cookie details from frontend (jwt)
 	 * @param user  user
 	 * @return success of removing user and http status
 	 */
-	@PostMapping("/delete/{token}")
-	public ResponseEntity<Boolean> deleteAccount(@PathVariable String token, @RequestBody User user) {
-		// authorization check
+	@PostMapping("/delete")
+	public ResponseEntity<Boolean> deleteAccount(@RequestHeader(value = "Cookie", required = false) String cookies, @RequestBody User user) {
+	    //getting token from cookie
+		String token = null;
+	    if (cookies != null) {
+	        for (String cookie : cookies.split(";")) {
+	            if (cookie.trim().startsWith("userInfoJwt=")) {
+	                token = cookie.split("=")[1].trim();
+	                break;
+	            }
+	        }
+	    }
+	    if (token == null) {
+	        return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+	    }
+		
+	    // authorization check & delete acc
 		Claims claims = jwtUtils.getClaims(token);
 		if (claims.get("role", String.class).equals(Role.ADMIN.toString())) {
 			User userToRemove = userService.getUser(user);
@@ -125,11 +175,26 @@ public class AccountController {
 	/**
 	 * Uses jwt to check role. Sends all guest user info to frontend.
 	 * 
-	 * @param token jwt
+	 * @param cookies cookie details from frontend (jwt)
 	 * @return list of all users and http status
 	 */
-	@PostMapping("/getAll")
-	public ResponseEntity<List<String>> getUsers(@RequestBody String token) {
+	@GetMapping("/getAll")
+	public ResponseEntity<List<String>> getUsers(@RequestHeader(value = "Cookie", required = false) String cookies) {
+		//getting token from cookie
+		String token = null;
+	    if (cookies != null) {
+	        for (String cookie : cookies.split(";")) {
+	            if (cookie.trim().startsWith("userInfoJwt=")) {
+	                token = cookie.split("=")[1].trim();
+	                break;
+	            }
+	        }
+	    }
+	    if (token == null) {
+	        return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+	    }
+		
+	    //check jwt & get details
 		Claims claims = jwtUtils.getClaims(token);
 		if (claims.get("role", String.class).equals(Role.ADMIN.toString())) {
 			List<User> allUsers = userService.getAllUsers();
@@ -148,12 +213,27 @@ public class AccountController {
 	 * Uses jwt to check username and role. If less than 10 mazes for user, add maze
 	 * to db.
 	 * 
-	 * @param token jwt
+	 * @param cookies cookie details from frontend (jwt)
 	 * @param maze  maze to save
 	 * @return success of saving maze and http status
 	 */
-	@PostMapping("/saveMaze/{token}")
-	public ResponseEntity<Boolean> saveMazeInfo(@PathVariable String token, @RequestBody int[][] maze) {
+	@PostMapping("/saveMaze")
+	public ResponseEntity<Boolean> saveMazeInfo(@RequestHeader(value = "Cookie", required = false) String cookies, @RequestBody int[][] maze) {
+	    //getting token from cookie
+		String token = null;
+	    if (cookies != null) {
+	        for (String cookie : cookies.split(";")) {
+	            if (cookie.trim().startsWith("userInfoJwt=")) {
+	                token = cookie.split("=")[1].trim();
+	                break;
+	            }
+	        }
+	    }
+	    if (token == null) {
+	        return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+	    }
+		
+	    //check jwt & save maze
 		Claims claims = jwtUtils.getClaims(token);
 		if (claims.get("role", String.class).equals(Role.ADMIN.toString())
 				|| claims.get("role", String.class).equals(Role.GUEST.toString())) {
@@ -175,12 +255,27 @@ public class AccountController {
 	/**
 	 * Uses jwt to check username and role. Removes provided maze from db.
 	 * 
-	 * @param token jwt
+	 * @param cookies cookie details from frontend (jwt)
 	 * @param index index of maze to remove
 	 * @return success of removing maze and http status
 	 */
-	@PostMapping("/deleteMaze/{token}")
-	public ResponseEntity<Boolean> removeMazeInfo(@PathVariable String token, @RequestBody int index) {
+	@PostMapping("/deleteMaze")
+	public ResponseEntity<Boolean> removeMazeInfo(@RequestHeader(value = "Cookie", required = false) String cookies, @RequestBody int index) {
+	    //getting token from cookie
+		String token = null;
+	    if (cookies != null) {
+	        for (String cookie : cookies.split(";")) {
+	            if (cookie.trim().startsWith("userInfoJwt=")) {
+	                token = cookie.split("=")[1].trim();
+	                break;
+	            }
+	        }
+	    }
+	    if (token == null) {
+	        return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+	    }
+	    
+	    //check jwt & remove maze
 		Claims claims = jwtUtils.getClaims(token);
 		if (claims.get("role", String.class).equals(Role.ADMIN.toString())
 				|| claims.get("role", String.class).equals(Role.GUEST.toString())) {
@@ -198,11 +293,26 @@ public class AccountController {
 	/**
 	 * Uses jwt to check username and role. Gets mazes for user.
 	 * 
-	 * @param token jwt
+	 * @param cookies cookie details from frontend (jwt)
 	 * @return list of saved mazes and http status, sends info as JSON
 	 */
-	@PostMapping("/getMazes")
-	public ResponseEntity<String> getMazeInfo(@RequestBody String token) {
+	@GetMapping("/getMazes")
+	public ResponseEntity<String> getMazeInfo(@RequestHeader(value = "Cookie", required = false) String cookies) {
+	    //getting token from cookie
+		String token = null;
+	    if (cookies != null) {
+	        for (String cookie : cookies.split(";")) {
+	            if (cookie.trim().startsWith("userInfoJwt=")) {
+	                token = cookie.split("=")[1].trim();
+	                break;
+	            }
+	        }
+	    }
+	    if (token == null) {
+	        return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+	    }
+	    
+	    //check jwt & get details
 		Claims claims = jwtUtils.getClaims(token);
 		if (claims.get("role", String.class).equals(Role.ADMIN.toString())
 				|| claims.get("role", String.class).equals(Role.GUEST.toString())) {
@@ -215,11 +325,26 @@ public class AccountController {
 	/**
 	 * Uses Jwts package to check remaining time on jwt.
 	 * 
-	 * @param token jwt
+	 * @param cookies cookie details from frontend (jwt)
 	 * @return time left
 	 */
-	@PostMapping("/getJwtTime")
-	public ResponseEntity<Integer> getTimeRemaining(@RequestBody String token) {
+	@GetMapping("/getJwtTime")
+	public ResponseEntity<Integer> getTimeRemaining(@RequestHeader(value = "Cookie", required = false) String cookies) {
+	    //getting token from cookie
+		String token = null;
+	    if (cookies != null) {
+	        for (String cookie : cookies.split(";")) {
+	            if (cookie.trim().startsWith("userInfoJwt=")) {
+	                token = cookie.split("=")[1].trim();
+	                break;
+	            }
+	        }
+	    }
+	    if (token == null) {
+	        return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+	    }
+	    
+	    //check jwt & get details
 		try {
 			int timeLeft = jwtUtils.getExpiration(token);
 			return new ResponseEntity<>(timeLeft, HttpStatus.OK);
