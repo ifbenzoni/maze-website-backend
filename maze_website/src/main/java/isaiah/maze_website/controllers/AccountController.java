@@ -47,7 +47,7 @@ public class AccountController {
 	 * 
 	 * @param user user info for login
 	 * @param response http servlet response for setting jwt
-	 * @return jwt for user and http status
+	 * @return cookie in response + login success message
 	 */
 	@PostMapping("/login")
 	public ResponseEntity<String> login(@RequestBody User user, HttpServletResponse response) {
@@ -61,6 +61,21 @@ public class AccountController {
 		response.addHeader("Set-Cookie", "userInfoJwt=" + jwt + "; Path=/; HttpOnly; Secure; SameSite=None");
 		
         return new ResponseEntity<>(new Gson().toJson("Login successful"), HttpStatus.OK);
+	}
+	
+	/**
+	 * Remove jwt from cookie.
+	 * 
+	 * @param response http servlet response for setting jwt
+	 * @return cookie in response + logout success message
+	 */
+	@PostMapping("/logout")
+	public ResponseEntity<String> logout(HttpServletResponse response) {
+		
+		response.addHeader("Set-Cookie", "userInfoJwt=; Path=/; HttpOnly; Max-Age=0; SameSite=None; Secure");
+
+	    // Return a successful logout response
+	    return new ResponseEntity<>(new Gson().toJson("Logout successful"), HttpStatus.OK);
 	}
 
 	/**
