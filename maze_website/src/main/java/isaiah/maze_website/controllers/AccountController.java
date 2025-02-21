@@ -59,7 +59,7 @@ public class AccountController {
 		String jwt = jwtUtils.generateJwt(retrievedUser);
 		
 		//can remove Secure; SameSite=None (if needed when testing on localhost)
-		response.addHeader("Set-Cookie", "userInfoJwt=" + jwt + "; Path=/; HttpOnly; Secure; SameSite=None");
+		response.addHeader("Set-Cookie", "userInfoJwt=" + jwt + "; Path=/; HttpOnly; Secure; SameSite=None; Partitioned");
 		
         return new ResponseEntity<>(new Gson().toJson("Login successful"), HttpStatus.OK);
 	}
@@ -73,7 +73,7 @@ public class AccountController {
 	@DeleteMapping("/logout")
 	public ResponseEntity<String> logout(HttpServletResponse response) {
 		
-		response.addHeader("Set-Cookie", "userInfoJwt=; Path=/; HttpOnly; Max-Age=0; SameSite=None; Secure");
+		response.addHeader("Set-Cookie", "userInfoJwt=; Path=/; HttpOnly; Max-Age=0; SameSite=None; Secure; Partitioned");
 
 	    // Return a successful logout response
 	    return new ResponseEntity<>(new Gson().toJson("Logout successful"), HttpStatus.OK);
